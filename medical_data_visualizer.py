@@ -18,26 +18,27 @@ df["gluc"] = df["gluc"].map(lambda x: 0 if x == 1 else 1)
 def draw_cat_plot():
     # 5
     value_vars = [
+        "active",
+        "alco",
         "cholesterol",
         "gluc",
-        "smoke",
-        "alco",
-        "active",
         "overweight",
+        "smoke",
     ]
-    df_cat = pd.melt(df, value_vars=value_vars)
+
+    df_cat = pd.melt(df, id_vars=["cardio"], value_vars=value_vars) # partially correct?
 
 
     # 6
-    df_cat = df_cat.groupby("variable")
-    
+    df_cat_counts = df_cat.groupby(["variable", "value"]).value_counts().to_frame().rename(columns={"count":"total"}) # almost - need to split values along cardio being 0 or 1
 
     # 7
+    sns.catplot(df_cat_counts, kind="bar", x="variable", hue="value", y="total", col="cardio")
 
 
 
     # 8
-    fig = None
+    fig = sns.catplot(df_cat_counts, kind="bar", x="variable", hue="value", y="total", col="cardio")
 
 
     # 9
@@ -48,7 +49,8 @@ def draw_cat_plot():
 # 10
 def draw_heat_map():
     # 11
-    df_heat = None
+    bp_condition = df["ap_lo"] <= df["ap_hi"]
+    df_heat = df[bp_condition]
 
     # 12
     corr = None
